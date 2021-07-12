@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from matplotlib.ticker import MaxNLocator
 
 # data import
 df = pd.read_csv('C:\\Users\\haley\\github\\R\\python_plot\\rdata.csv').dropna()
+df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
 
 # assign font family
 plt.rcParams['font.family'] = 'Arial'
