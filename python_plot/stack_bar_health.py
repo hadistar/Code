@@ -15,18 +15,22 @@ df_ilcr.head(10)
 df_ilcr.columns = ["As","Cr6","Ni","Pb","Season"]
 print(df_ilcr.columns)
 
-#stack bar for ILCR
+# Calculate mean for each season
 x= df_ilcr[['Season','As','Cr6','Ni','Pb']]
 y= x.set_index('Season')
-z=y.groupby('Season').mean()
 
-fig = z.plot.bar(stacked=True)
-fig.set_ylabel('Incremental Lifetime Cancer Risk ('+ "x 10" + '$^{-4}$'+')')
-fig.legend(loc="upper left", bbox_to_anchor=(0.55,1), fontsize=10)
+# Use Dan's trick to order Season names in the table created by groupby
+z = y.groupby(['Season']).mean().reset_index()
+Season = ['Autumm', 'Winter','Spring', 'Summer']
+mapping = {Season: i for i, Season in enumerate(Season)}
+key = z['Season'].map(mapping)
+z = z.iloc[key.argsort()]
+
+# Draw the bar chart
+fig = z.plot.bar(stacked=True, x='Season')
+fig.set_ylabel('Incremental Lifetime Cancer Risk ('+ "x 10" + '$^{-6}$'+')')
+#  reverse lavels
+handles,labels = fig.get_legend_handles_labels()
+fig.legend(reversed(handles), reversed(labels), loc="upper left", bbox_to_anchor=(0.8,1), fontsize=10)
 plt.xticks(rotation=40, size=10)
-patterns = [ "/" , "\\" , "|" , "-"]
-# dif = fig.add_subplot(111)
-for i in range(len(patterns)):
-    fig.bar(i, 3, edgecolor='black', hatch=patterns[i])
-
 plt.show()
