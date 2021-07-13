@@ -32,5 +32,6 @@ fig.set_ylabel('Incremental Lifetime Cancer Risk ('+ "x 10" + '$^{-6}$'+')')
 #  reverse lavels
 handles,labels = fig.get_legend_handles_labels()
 fig.legend(reversed(handles), reversed(labels), loc="upper left", bbox_to_anchor=(0.8,1), fontsize=10)
+
 plt.xticks(rotation=40, size=10)
 plt.show()

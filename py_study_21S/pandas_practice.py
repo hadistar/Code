@@ -8,7 +8,7 @@
 import pandas as pd
 import os
 os.getcwd()
-os.chdir('D:/hadistar/Python_study_2021_summer')
+os.chdir('C:\\Users\\haley\\github\\R\\py_study_21S')
 
 df1 = pd.read_csv('210713_PM2.5_mean_day.csv')
 df2 = pd.read_csv('210713_AirKorea_20191103.csv', encoding='euc-kr')
@@ -18,11 +18,13 @@ df2.head()
 
 df2 = df2.rename(columns={'측정소코드':'Station code'})
 df2 = df2[['Station code', 'Latitude', 'Longitude']]
+df2. head()
 
 df3 = pd.merge(df1, df2, how='inner', on='Station code')
-
+df3.head()
 df4 = df3.loc[df3['date']=='2020-11-11'].copy()
 df4 = df4.reset_index(drop=True)
+df4.head()
 
 # 2. Row calculation function
 
@@ -70,6 +72,8 @@ for n in range(len(df6)):
     for i in range(24):
         temp = df6.iloc[n].copy()
         temp['date'] = temp['date'] + pd.to_timedelta(i, unit='h')
+        # if temp['date'].month == 1 or 2:
+        #     temp["Season"] = "Winter"
         df7 = df7.append(temp, sort=False)
 
 # 4. Groupby (grouper)
