@@ -19,7 +19,7 @@ print(df_ilcr.columns)
 x= df_ilcr[['Season','As','Cr6','Ni','Pb']]
 y= x.set_index('Season')
 
-# Use Dan's trick to order Season names in the table created by groupby
+# Order Season names in the table created by groupby
 z = y.groupby(['Season']).mean().reset_index()
 Season = ['Autumm', 'Winter','Spring', 'Summer']
 mapping = {Season: i for i, Season in enumerate(Season)}
@@ -29,7 +29,7 @@ z = z.iloc[key.argsort()]
 # Draw the bar chart
 fig = z.plot.bar(stacked=True, x='Season')
 fig.set_ylabel('Incremental Lifetime Cancer Risk ('+ "x 10" + '$^{-6}$'+')')
-#  reverse lavels
+#  reverse labels
 handles,labels = fig.get_legend_handles_labels()
 fig.legend(reversed(handles), reversed(labels), loc="upper left", bbox_to_anchor=(0.8,1), fontsize=10)
 
