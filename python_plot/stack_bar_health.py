@@ -22,7 +22,7 @@ print(df_ilcr.columns)
 x= df_ilcr[['Season','As','Cr6','Ni','Pb']]
 y= x.set_index('Season')
 
-# Use Dan's trick to order Season names in the table created by groupby
+# Order Season names in the table created by groupby
 z = y.groupby(['Season']).mean().reset_index()
 Season = ['Autumm', 'Winter','Spring', 'Summer']
 mapping = {Season: i for i, Season in enumerate(Season)}
