@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
 import pandas as pd
-import numpy as np
+# import numpy as np
 
 # data import
 df = pd.read_csv('D:\\GitHub\\Code\\python_plot\\rdata.csv').dropna()
