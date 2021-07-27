@@ -6,7 +6,7 @@ plt.rcParams['font.size'] = 14
 
 import os
 os.getcwd()
-os.chdir('D:/hadistar/Python_study_2021_summer')
+os.chdir('D:\\GitHub\\Code\\py_study_21S')
 
 df1 = pd.read_csv('210713_PM2.5_mean_day.csv')
 df2 = pd.read_csv('210713_AirKorea_20191103.csv', encoding='euc-kr')
