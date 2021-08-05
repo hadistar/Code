@@ -177,3 +177,8 @@ for i, x_val in enumerate(x_list):
         y_val = 0.5*(func1(x_list[i],*popt1)+func1(x_list[i-1],*popt1))
         area = area + dx*y_val
 print(area)
+
+import numpy as np
+
+x = np.array(["1", "2", "3", "4", "5"])
+np.repeat(x, [3], axis=0)

@@ -1,10 +1,5 @@
 # TPS: Thin-Plate splines -------------------------------------------------
 
-# install.packages("readxl")
-# install.packages("fields")
-# install.packages("spam")
-# install.packages("maps")
-
 library(readxl)
 require(fields)
 require(spam)
@@ -15,57 +10,64 @@ library(ggplot2)
 getwd()
 setwd("D:/GitHub/Code/kriging")
 # setwd("C:/Users/e-park/Dropbox/My DropBox/Maps/Korea data/MMRA on Korea PM25")
-# -------------------------------------------------------------------------
 
+# -------------------------------------------------------------------------
 # data import
 Koreapred <- read.csv("PM25_avg_over_days.csv")
 Koreapred$coords<-matrix(c(Koreapred$lon,Koreapred$lat),byrow=F,ncol=2)
-# str(Koreapred$coords)
-surf.1<-Tps(Koreapred$coords,Koreapred$Mean_PM25)
-head(surf.1)
-# class(surf.1)
-# summary(surf.1)
-# print(surf.1$lambda)
 
-#Creating the grid 
+
+#calculate TPS
+surf.1<-Tps(Koreapred$coords,Koreapred$Mean_PM25)
+head(surf.1,5)
+
+summary(Koreapred)
+#calculate grid
 predlon <- seq(min(Koreapred$lon)-0.1,max(Koreapred$lon)+0.1,,200)
 predlat <- seq(min(Koreapred$lat)-0.1,max(Koreapred$lat)+0.1,,200)
+summary(predlat)
+
+
+#Adjust the lat&lon value to zoom on the map
+LON.range <- as.integer(matrix(c(min(predlon),max(predlon)),nrow=1))
+LAT.range <- as.integer(matrix(c(min(predlat),max(predlat)),nrow=1))
+
+#expand to grid
 Koreagrid <- expand.grid(predlon,predlat)
 names(Koreagrid) <- c("lon", "lat")
 head(Koreagrid)
-# predlocs <- cbind(predlocs1$Var1,predlocs1$Var2)
-#y.pred <- rep(NA,nrow(predlocs))
 
-#Koreagrid<-matrix(c(dataplot[,1],dataplot[,2]),byrow=F,ncol=2) 
+#krig
 surf.1.pred<-predict.Krig(surf.1,Koreagrid)
-summary(surf.1.pred)
-# summary(as.vector(surf.1.pred))
+head(surf.1.pred,5)
 
-# surf.1.pred.m<-matrix(surf.1.pred,length(Koreagrid[,1]),length(Koreagrid[,2]),byrow=F)
-# str(surf.1.pred.m)
+#predict value + lat,lon
 data <- cbind(Koreagrid,surf.1.pred)
 head(data,5)
 
 
 # plotting using sp package -----------------------------------------------
 # require(sp)
-# 
 # plot(Koreagrid,pch=20,asp=1,cex=.6,col=bpy.colors(256)[cut(surf.1.pred,256)],
 #             xlab="Longitude",ylab="Latitude",main="Korea PM2.5")
-# 
 # grid(col="gray")
+
+
+# plotting using ggplot2 package ------------------------------------------
+
+#import map
 library(raster)
 skorea<- getData("GADM", country= "KOR", level=2)
 skorea<- fortify(skorea)
 skorea <- data.frame(skorea)
-#require(ggplot2)
-# plotting using ggplot2 package ------------------------------------------
+
+
 library(ggplot2)
 tsp_fig <- ggplot()+ theme_minimal() +
   geom_tile(data = data, aes(x= lon, y= lat, fill = surf.1.pred)) +
   scale_fill_gradient2(name=bquote(atop(PM[2.5], mu*g/m^3)),
                        low = "blue", high = "red",
-                       mid = "white", midpoint=22.32)+
+                       mid = "white", midpoint=median(data$surf.1.pred))+
   geom_map(data= skorea, map= skorea, aes(x=long,y=lat,map_id=id,group=group),
            fill=NA, colour="black") +
   coord_cartesian(xlim= LON.range, ylim= LAT.range) +

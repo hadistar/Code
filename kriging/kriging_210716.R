@@ -23,7 +23,7 @@ library(raster)
 #data import
 getwd()
 setwd("D:/GitHub/Code/kriging")
-sh193 <- read.csv ("AirKora_2019_2020_SH_100km.csv")
+# sh193 <- read.csv ("AirKora_2019_2020_SH_100km.csv")
 sh193  <- sh193 [!is.na(sh193$PM25), ]
 sh193 <- sh193[,c(1:2, 7:10)]
 is.na(sh193$PM25)
