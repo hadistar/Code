@@ -1,8 +1,11 @@
 import pandas as pd
 import numpy as np
+import sklearn.neighbors._base
+sys.modules['sklearn.neighbors.base'] = sklearn.neighbors._base
+from missingpy import MissForest
 
 
-case = '1_Basic_1_Seoul'
+case = '3_AP_3_Ulsan'
 
 df = pd.read_csv('C:\\Users\\Haley\\Dropbox\\패밀리룸\\MVI\\Data\\'+case+'_raw.csv')
 scalingfactor = {}
@@ -14,7 +17,6 @@ for c in df.columns[1:]:
     data_scaled[c] = (df[c] - df[c].min())/denominator
 
 data_wodate_scaled = data_scaled.iloc[:, 1:]
-dft = data_wodate_scaled.to_numpy()
 
 # seeds = [777, 1004, 322, 224, 417]
 seeds = [777, 1004, 322]
@@ -35,62 +37,20 @@ for s in range(len(seeds)):
 
             eraser = data_wodate_scaled.sample(int(len(data_wodate_scaled)*0.2), random_state=seeds[s]).index.tolist()
             target = elements[ele]
-#            data_wodate_scaled[np.ix_(eraser, target)] = np.nan
+
             data_wodate_scaled.loc[eraser, target] = np.nan
-
-            import sklearn.neighbors._base
-            sys.modules['sklearn.neighbors.base'] = sklearn.neighbors._base
-            from missingpy import MissForest
-
             # Make an instance and perform the imputation
             imputer = MissForest()
             # x = df.drop(df.columns[[0, 1, 2, 3]], axis=1)
             x_imputed = imputer.fit_transform(data_wodate_scaled)
 
-            data_array = x_imputed
-            column_names = ['PM2.5', 'SO42.', 'NO3.', 'Cl.',
-                            'Na.', 'NH4.', 'K.', 'Mg2.', 'Ca2.', 'OC', 'EC', 'Si', 'S', 'K', 'Ca',
-                            'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Ni', 'Cu', 'Zn', 'As', 'Se', 'Br', 'Ba',
-                            'Pb', 'PM10']
-            result = pd.DataFrame(data_array, columns=column_names)
-            result.isnull().sum()
+            column_names = ['PM2.5', 'SO42-', 'NO3-', 'Cl-', 'Na+', 'NH4+', 'K+', 'Mg2+',
+                            'Ca2+', 'OC', 'EC', 'S', 'K', 'Ca', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Ni',
+                            'Cu', 'Zn', 'As', 'Se', 'Br', 'Pb', 'month', 'hour', 'weekday', 'PM25',
+                            'PM10', 'SO2', 'CO', 'O3', 'NO2']
+            result = pd.DataFrame(x_imputed, columns=column_names)
+            result= result.loc[:, target]
+            for c in result:
+                result[c] = result[c] * scalingfactor[c][0] + scalingfactor[c][1]
 
-            # Add imputed values as columns to the untouched dataset
-            df_test['MF_OC'] = x_imputed[:, 9]
-            df_test['MF_EC'] = x_imputed[:, 10]
-            comparison_df = df_test[['OC', 'MF_OC', 'EC', 'MF_EC']]
-
-            # Calculate absolute errors
-            comparison_df['ABS_ERROR_OC'] = np.abs(comparison_df['OC'] - comparison_df['MF_OC'])
-            comparison_df['ABS_ERROR_EC'] = np.abs(comparison_df['EC'] - comparison_df['MF_EC'])
-            comparison_df.head()
-
-            # Show only rows where imputation was performed
-            imputation_result = comparison_df.iloc[sorted([*inds1])]
-            imputation_result.to_csv("imputation_result_OC.csv")
-
-            x = x_imputed[inds1, 9]
-            y = df_test.iloc[inds1]
-            y = y['OC']
-
-            from sklearn import linear_model
-            import sklearn
-
-            x = np.array(x)
-            y = np.array(y)
-
-            # Create linear regression object
-            linreg = linear_model.LinearRegression()
-            # Fit the linear regression model
-            model = linreg.fit(x.reshape(-1, 1), y.reshape(-1, 1))
-            # Get the intercept and coefficients
-            intercept = model.intercept_
-            coef = model.coef_
-            result = [intercept, coef]
-            predicted_y = x.reshape(-1, 1) * coef + intercept
-            r_squared = sklearn.metrics.r2_score(y, predicted_y)
-            print(r_squared)
-
-
-
-            x_train = np.array(data_wodate_scaled.drop(index=data_wodate_scaled.index[eraser], columns=target))
+            result.to_csv(name + '.csv', index=False)
